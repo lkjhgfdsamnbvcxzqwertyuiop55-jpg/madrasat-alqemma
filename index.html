@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة مدرسة القمة التعليمية</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --primary: #007bff;
+            --sidebar-bg: #343a40;
+            --sidebar-text: #ffffff;
+        }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --sidebar-bg: #1f1f1f;
+            --sidebar-text: #e0e0e0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        .register-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 20px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" onclick="toggleTheme()">💡 اقلب الوضع (ليلي/مضيء)</button>
+
+    <div class="register-container" id="register-page">
+        <h2 style="text-align: center; color: var(--primary);">مدرسة القمة - تسجيل طالب جديد</h2>
+        <form id="regForm" onsubmit="event.preventDefault(); loginStudent();">
+            <div class="form-group">
+                <label>الاسم رباعي:</label>
+                <input type="text" required placeholder="اكتب اسمك الرباعي هنا">
+            </div>
+            <div class="form-group">
+                <label>رقم موبايل الطالب:</label>
+                <input type="tel" pattern="[0-9]{11}" required placeholder="مثال: 010xxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>رقم موبايل ولي الأمر:</label>
+                <input type="tel" pattern="[0-9]{11}" required placeholder="رقم الوالد أو الوالدة">
+            </div>
+            <div class="form-group">
+                <label>المحافظة:</label>
+                <select required>
+                    <option value="">اختر محافظتك</option>
+                    <option>القاهرة</option><option>الجيزة</option><option>الشرقية</option><option>الدقهلية</option><option>الإسكندرية</option><option>الغربية</option><option>المنوفية</option><option>البحيرة</option><option>القليوبية</option><option>الفيوم</option><option>بني سويف</option><option>المنيا</option><option>أسيوط</option><option>سوهاج</option><option>قنا</option><option>الأقصر</option><option>أسوان</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الفصل الدراسي (السنة الدراسية):</label>
+                <select id="grade" required onchange="checkGrade()">
+                    <option value="">اختر سنتك الدراسية</option>
+                    <option value="1_general">الصف الأول الثانوي (عام)</option>
+                    <option value="2_general">الصف الثاني الثانوي (عام)</option>
+                    <option value="3_general">الصف الثالث الثانوي (عام)</option>
+                    <option value="1_azhar">الصف الأول الثانوي (أزهري)</option>
+                    <option value="2_azhar">الصف الثاني الثانوي (أزهري)</option>
+                    <option value="3_azhar">الصف الثالث الثانوي (أزهري)</option>
+                </select>
+            </div>
+            
+            <!-- شعبة ثانوي عام (تظهر في تالتة بس) -->
+            <div class="form-group hidden-section" id="general-branch-section">
+                <label>الشعبة (طلاب ثالثة ثانوي عام فقط):</label>
+                <select id="general-branch">
+                    <option value="">اختر شعبتك</option>
+                    <option value="science_pro">علمي علوم</option>
+                    <option value="math_pro">علمي رياضة</option>
+                    <option value="arts_pro">أدبي</option>
+                </select>
+            </div>
+
+            <!-- شعبة أزهر (تظهر من أولى ثانوي أزهر) -->
+            <div class="form-group hidden-section" id="azhar-branch-section">
+                <label>الشعبة الأزهري (من أولى لثالثة ثانوي أزهر):</label>
+                <select id="azhar-branch">
+                    <option value="">اختر شعبتك الأزهري</option>
+                    <option value="azhar_science">علمي</option>
+                    <option value="azhar_arts">أدبي</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>البريد الإلكتروني (الإيميل):</label>
+                <input type="email" required placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" required placeholder="اختر كلمة مرور قوية">
+            </div>
+            <button type="submit" class="btn">إنشاء حساب ودخول مدرسة القمة</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+        function checkGrade() {
+            const grade = document.getElementById('grade').value;
+            const generalBranch = document.getElementById('general-branch-section');
+            const azharBranch = document.getElementById('azhar-branch-section');
+            
+            // إخفاء الكل في الأول لتحديث الاختيار
+            generalBranch.style.display = "none";
+            azharBranch.style.display = "none";
+            document.getElementById('general-branch').required = false;
+            document.getElementById('azhar-branch').required = false;
+
+            // إظهار شعبة العام فقط في ثالثة ثانوي عام
+            if (grade === "3_general") {
+                generalBranch.style.display = "block";
+                document.getElementById('general-branch').required = true;
+            } 
+            // إظهار شعبة الأزهر من أولى ثانوي حتى ثالثة ثانوي أزهر
+            else if (grade === "1_azhar" || grade === "2_azhar" || grade === "3_azhar") {
+                azharBranch.style.display = "block";
+                document.getElementById('azhar-branch').required = true;
+            }
+        }
+        function loginStudent() {
+            alert("تم إنشاء حسابك بنجاح في مدرسة القمة! جاري نقلك للوحة التحكم والمدرسين بتوعك...");
+        }
+    </script>
+</body>
+</html>
