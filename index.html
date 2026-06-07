@@ -10,16 +10,18 @@
             --text-color: #212529;
             --card-bg: #ffffff;
             --primary: #007bff;
-            --sidebar-bg: #343a40;
+            --sidebar-bg: #1f2937;
             --sidebar-text: #ffffff;
+            --border-color: #e5e7eb;
         }
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --primary: #bb86fc;
-            --sidebar-bg: #1f1f1f;
-            --sidebar-text: #e0e0e0;
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --card-bg: #1f2937;
+            --primary: #3b82f6;
+            --sidebar-bg: #111827;
+            --sidebar-text: #f9fafb;
+            --border-color: #374151;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -37,59 +39,62 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            background: var(--card-bg);
-            color: var(--text-color);
+            width: 100%; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 5px; background: var(--card-bg); color: var(--text-color);
         }
         .btn {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px;
-            border: none;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
+            background-color: var(--primary); color: white; padding: 12px;
+            border: none; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;
         }
         .theme-toggle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 20px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-weight: bold;
+            position: fixed; top: 20px; left: 20px; padding: 10px 15px;
+            cursor: pointer; border-radius: 20px; border: none; background: var(--primary); color: white; font-weight: bold; z-index: 1000;
         }
         .hidden-section { display: none; }
+
+        /* لوحة التحكم الداخلية */
+        .dashboard-layout { display: none; min-height: 100vh; }
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
+            position: fixed; top: 0; right: 0; bottom: 0; padding: 20px; box-sizing: border-box;
+            border-left: 1px solid var(--border-color);
+        }
+        .sidebar h3 { text-align: center; color: var(--primary); margin-bottom: 30px; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu li { padding: 12px 15px; margin-bottom: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--primary); color: white; }
+        
+        .main-content { margin-right: 260px; padding: 40px; box-sizing: border-box; }
+        .welcome-header { margin-bottom: 30px; }
+        
+        .teachers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; margin-top: 20px; }
+        .teacher-card {
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer;
+        }
+        .teacher-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .teacher-logo {
+            width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: white;
+            display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px;
+        }
+        .teacher-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .teacher-subject { color: #6b7280; font-size: 14px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <button class="theme-toggle" onclick="toggleTheme()">💡 اقلب الوضع (ليلي/مضيء)</button>
+    <button class="theme-toggle" onclick="toggleTheme()">💡 وضع الشاشة</button>
 
+    <!-- 1. صفحة التسجيل الذكية -->
     <div class="register-container" id="register-page">
         <h2 style="text-align: center; color: var(--primary);">مدرسة القمة - تسجيل طالب جديد</h2>
-        <form id="regForm" onsubmit="event.preventDefault(); loginStudent();">
+        <form id="regForm" onsubmit="event.preventDefault(); enterDashboard();">
             <div class="form-group">
                 <label>الاسم رباعي:</label>
-                <input type="text" required placeholder="اكتب اسمك الرباعي هنا">
+                <input type="text" id="student-name" required placeholder="اكتب اسمك الرباعي هنا">
             </div>
             <div class="form-group">
                 <label>رقم موبايل الطالب:</label>
@@ -103,7 +108,7 @@
                 <label>المحافظة:</label>
                 <select required>
                     <option value="">اختر محافظتك</option>
-                    <option>القاهرة</option><option>الجيزة</option><option>الشرقية</option><option>الدقهلية</option><option>الإسكندرية</option><option>الغربية</option><option>المنوفية</option><option>البحيرة</option><option>القليوبية</option><option>الفيوم</option><option>بني سويف</option><option>المنيا</option><option>أسيوط</option><option>سوهاج</option><option>قنا</option><option>الأقصر</option><option>أسوان</option>
+                    <option>القاهرة</option><option>الجيزة</option><option>الإسكندرية</option><option>الدقهلية</option><option>الشرقية</option><option>المنوفية</option><option>القليوبية</option><option>البحيرة</option><option>الغربية</option><option>بور سعيد</option><option>دمياط</option><option>الإسماعيلية</option><option>السويس</option><option>كفر الشيخ</option><option>الفيوم</option><option>بني سويف</option><option>المنيا</option><option>أسيوط</option><option>سوهاج</option><option>قنا</option><option>الأقصر</option><option>أسوان</option><option>البحر الأحمر</option><option>الوادي الجديد</option><option>مطروح</option><option>شمال سيناء</option><option>جنوب سيناء</option>
                 </select>
             </div>
             <div class="form-group">
@@ -119,7 +124,6 @@
                 </select>
             </div>
             
-            <!-- شعبة ثانوي عام (تظهر في تالتة بس) -->
             <div class="form-group hidden-section" id="general-branch-section">
                 <label>الشعبة (طلاب ثالثة ثانوي عام فقط):</label>
                 <select id="general-branch">
@@ -130,9 +134,8 @@
                 </select>
             </div>
 
-            <!-- شعبة أزهر (تظهر من أولى ثانوي أزهر) -->
             <div class="form-group hidden-section" id="azhar-branch-section">
-                <label>الشعبة الأزهري (من أولى لثالثة ثانوي أزهر):</label>
+                <label>الشعبة الأزهري:</label>
                 <select id="azhar-branch">
                     <option value="">اختر شعبتك الأزهري</option>
                     <option value="azhar_science">علمي</option>
@@ -152,40 +155,45 @@
         </form>
     </div>
 
+    <!-- 2. لوحة التحكم الداخلية للطالب -->
+    <div class="dashboard-layout" id="dashboard-page">
+        <div class="sidebar">
+            <h3>🏫 مدرسة القمة</h3>
+            <ul class="sidebar-menu">
+                <li class="active">👨‍🏫 مدرسيني</li>
+                <li>📚 كورساتي</li>
+                <li>📝 واجباتي</li>
+                <li>✏️ امتحاناتي</li>
+                <li>📊 تقاريري المدرسية</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="welcome-header">
+                <h2>أهلاً بك يا <span id="display-name" style="color: var(--primary);">الطالب</span> في لوحتك الذكية 👋</h2>
+                <p>مرحباً بك في صفك الدراسي، اختر المدرس وابدأ رحلة التفوق والقمة!</p>
+            </div>
+
+            <h3 style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">كتالوج مدرسي المرحلة الدراسية المتاحين لك</h3>
+            
+            <div class="teachers-grid" id="teachers-container">
+                <!-- المدرسين بيظهروا هنا ذكياً حسب شعبة ومرحلة الطالب -->
+            </div>
+        </div>
+    </div>
+
     <script>
+        const teachersData = [
+            { name: "مستر أحمد فريد", subject: "الفيزياء العبقرية", type: "science", logo: "أ.ف" },
+            { name: "مستر خالد صقر", subject: "الكيمياء الحديثة", type: "science", logo: "أ.خ" },
+            { name: "مستر حسن ممدوح", subject: "الرياضيات البحتة", type: "math", logo: "أ.ح" },
+            { name: "الأستاذ محمد طه", subject: "التاريخ والآثار", type: "arts", logo: "أ.م" },
+            { name: "الشيخ أحمد عمر", subject: "الفقه الحنفي الأزهري", type: "azhar", logo: "ش.أ" }
+        ];
+
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
+        
         function checkGrade() {
-            const grade = document.getElementById('grade').value;
-            const generalBranch = document.getElementById('general-branch-section');
-            const azharBranch = document.getElementById('azhar-branch-section');
-            
-            // إخفاء الكل في الأول لتحديث الاختيار
-            generalBranch.style.display = "none";
-            azharBranch.style.display = "none";
-            document.getElementById('general-branch').required = false;
-            document.getElementById('azhar-branch').required = false;
-
-            // إظهار شعبة العام فقط في ثالثة ثانوي عام
-            if (grade === "3_general") {
-                generalBranch.style.display = "block";
-                document.getElementById('general-branch').required = true;
-            } 
-            // إظهار شعبة الأزهر من أولى ثانوي حتى ثالثة ثانوي أزهر
-            else if (grade === "1_azhar" || grade === "2_azhar" || grade === "3_azhar") {
-                azharBranch.style.display = "block";
-                document.getElementById('azhar-branch').required = true;
-            }
-        }
-        function loginStudent() {
-            alert("تم إنشاء حسابك بنجاح في مدرسة القمة! جاري نقلك للوحة التحكم والمدرسين بتوعك...");
-        }
-    </script>
-</body>
-</html>
